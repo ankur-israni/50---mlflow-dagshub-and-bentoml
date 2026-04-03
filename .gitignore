@@ -1,0 +1,98 @@
+# =========================
+# MLflow Artifacts
+# =========================
+mlruns/
+mlflow.db
+mlartifacts/
+
+# Optional: if using custom artifact locations
+artifacts/
+outputs/
+
+# =========================
+# Python Cache / Build
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# =========================
+# Virtual Environments
+# =========================
+.env
+.venv
+env/
+venv/
+ENV/
+
+# =========================
+# Jupyter Notebook
+# =========================
+.ipynb_checkpoints
+
+# =========================
+# Logs & Runtime Files
+# =========================
+*.log
+logs/
+*.out
+*.err
+
+# =========================
+# Environment / Secrets
+# =========================
+.env
+.env.*
+*.env
+
+# =========================
+# IDE / Editor Files
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Testing / Coverage
+# =========================
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# =========================
+# Data Files (optional - depends on project)
+# =========================
+data/
+datasets/
+*.csv
+*.parquet
+*.h5
+
+# =========================
+# Model Files (optional)
+# =========================
+*.pkl
+*.joblib
+*.h5
+*.onnx
+
+# =========================
+# Docker / Misc
+# =========================
+*.pid
+*.seed
+*.sqlite3
