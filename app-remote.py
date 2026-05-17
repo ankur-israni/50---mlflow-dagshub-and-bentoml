@@ -12,6 +12,7 @@ from sklearn.linear_model import ElasticNet
 import mlflow
 import mlflow.sklearn
 
+from dotenv import load_dotenv
 import dagshub
 
 logging.basicConfig(level=logging.WARN)
@@ -30,30 +31,25 @@ if __name__ == "__main__":
     warnings.filterwarnings("ignore")
     np.random.seed(40)
 
-    # Load trackling uri - Local or Remote here
-    # BASE_DIR = Path(__file__).resolve().parent
-    # db_uri = f"sqlite:///{BASE_DIR / 'mlflow.db'}"
-    # artifact_uri = (BASE_DIR / "mlruns").resolve().as_uri()
-    # mlflow.set_tracking_uri(db_uri)
-    # print("tracking uri:", mlflow.get_tracking_uri())
-    # print("artifact uri:", artifact_uri)
-
+    # Load environment variables from .env file
+    BASE_DIR = Path(__file__).resolve().parent
+    load_dotenv(BASE_DIR / ".env")
+    
+    # Set DagsHub credentials from environment
+    dagshub_key = os.getenv("DAGSHUB_KEY")
+    if dagshub_key:
+        os.environ["DAGSHUB_USER_TOKEN"] = dagshub_key
+    
+    # Configure MLflow tracking with DagsHub
     dagshub.init(
-    repo_owner='ankur-israni',
-    repo_name='50---mlflow-dagshub-and-bentoml',
-    mlflow=True
-)
+        repo_owner='ankur-israni',
+        repo_name='50---mlflow-dagshub-and-bentoml', # This is the name of the repo on Dagshub.com. Daghshub has already connected to this repo.
+        mlflow=True
+    )
 
-    # Set experiment metadata
-    experiment_name = "wine-quality-experiment"
-    exp = mlflow.get_experiment_by_name(experiment_name)
-    if exp is None:
-        mlflow.create_experiment(
-            name=experiment_name,
-            artifact_location=artifact_uri
-        )
-    mlflow.set_experiment(experiment_name)
-
+    # Load trackling uri - Local or Remote here
+    db_uri = f"sqlite:///{BASE_DIR / 'mlflow.db'}"
+    artifact_uri = (BASE_DIR / "mlruns").resolve().as_uri()
 
     # Load dataset
     wine_dataset = "https://raw.githubusercontent.com/mlflow/mlflow/master/tests/datasets/winequality-red.csv" # Dataset
@@ -76,24 +72,59 @@ if __name__ == "__main__":
     alpha = float(sys.argv[1]) if len(sys.argv) > 1 else 0.5
     l1_ratio = float(sys.argv[2]) if len(sys.argv) > 2 else 0.5
 
+    # Set experiment metadata
+    experiment_name = "wine-quality-experiment"
+    try:
+        mlflow.create_experiment(name=experiment_name)
+    except Exception:
+        pass  # Experiment may already exist
 
-    with mlflow.start_run():
-        lr = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)
-        lr.fit(train_x, train_y)
+    # Try to use DagsHub remote tracking, fallback to local if it fails
+    try:
+        mlflow.set_experiment(experiment_name)
+        with mlflow.start_run():
+            lr = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)
+            lr.fit(train_x, train_y)
 
-        predicted_qualities = lr.predict(test_x)
-        rmse, mae, r2 = eval_metrics(test_y, predicted_qualities)
+            predicted_qualities = lr.predict(test_x)
+            rmse, mae, r2 = eval_metrics(test_y, predicted_qualities)
 
-        print(f"Elasticnet model (alpha={alpha:.6f}, l1_ratio={l1_ratio:.6f}):")
-        print(f"  RMSE: {rmse}")
-        print(f"  MAE: {mae}")
-        print(f"  R2: {r2}")
+            print(f"Elasticnet model (alpha={alpha:.6f}, l1_ratio={l1_ratio:.6f}):")
+            print(f"  RMSE: {rmse}")
+            print(f"  MAE: {mae}")
+            print(f"  R2: {r2}")
 
-        # Log these params for MLFlow recording
-        mlflow.log_param("alpha", alpha)
-        mlflow.log_param("l1_ratio", l1_ratio)
-        mlflow.log_metric("rmse", rmse)
-        mlflow.log_metric("r2", r2)
-        mlflow.log_metric("mae", mae)
+            # Log these params for MLFlow recording
+            mlflow.log_param("alpha", alpha)
+            mlflow.log_param("l1_ratio", l1_ratio)
+            mlflow.log_metric("rmse", rmse)
+            mlflow.log_metric("r2", r2)
+            mlflow.log_metric("mae", mae)
 
-        mlflow.sklearn.log_model(sk_model=lr, name="mlflow-50-model-remote")
+            mlflow.sklearn.log_model(sk_model=lr, name="mlflow-50-model-remote")
+    except Exception as e:
+        logger.warning(f"DagsHub remote tracking failed: {e}. Falling back to local tracking.")
+        # Fallback to local tracking
+        mlflow.set_tracking_uri(db_uri)
+        mlflow.set_experiment(experiment_name)
+        
+        with mlflow.start_run():
+            lr = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)
+            lr.fit(train_x, train_y)
+
+            predicted_qualities = lr.predict(test_x)
+            rmse, mae, r2 = eval_metrics(test_y, predicted_qualities)
+
+            print(f"Elasticnet model (alpha={alpha:.6f}, l1_ratio={l1_ratio:.6f}) [Local Tracking]:")
+            print(f"  RMSE: {rmse}")
+            print(f"  MAE: {mae}")
+            print(f"  R2: {r2}")
+
+            # Log these params for MLFlow recording
+            mlflow.log_param("alpha", alpha)
+            mlflow.log_param("l1_ratio", l1_ratio)
+            mlflow.log_metric("rmse", rmse)
+            mlflow.log_metric("r2", r2)
+            mlflow.log_metric("mae", mae)
+
+            mlflow.sklearn.log_model(sk_model=lr, name="mlflow-50-model-remote")
