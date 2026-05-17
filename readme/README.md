@@ -40,6 +40,11 @@ conda deactivate
 ************************************
 # 2) Remote Run (Dagshub) - TODO
 ************************************
+Terminal ('/Users/ankur/backup/delta/sn/datascience/workspace/11VC_udemy - complete datascience ml_dl_nlp bootcamp/50 - mlflow dagshub and bentoml') > 
+python app-remote.py
+
+
+
 
 ## ML FLow experiements
 MLFLOW_TRACKING_URI=https://dagshub.com/krishnaik06/mlflowexperiments.mlflow \
