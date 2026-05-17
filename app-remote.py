@@ -12,6 +12,8 @@ from sklearn.linear_model import ElasticNet
 import mlflow
 import mlflow.sklearn
 
+import dagshub
+
 logging.basicConfig(level=logging.WARN)
 logger = logging.getLogger(__name__)
 
@@ -29,12 +31,18 @@ if __name__ == "__main__":
     np.random.seed(40)
 
     # Load trackling uri - Local or Remote here
-    BASE_DIR = Path(__file__).resolve().parent
-    db_uri = f"sqlite:///{BASE_DIR / 'mlflow.db'}"
-    artifact_uri = (BASE_DIR / "mlruns").resolve().as_uri()
-    mlflow.set_tracking_uri(db_uri)
-    print("tracking uri:", mlflow.get_tracking_uri())
-    print("artifact uri:", artifact_uri)
+    # BASE_DIR = Path(__file__).resolve().parent
+    # db_uri = f"sqlite:///{BASE_DIR / 'mlflow.db'}"
+    # artifact_uri = (BASE_DIR / "mlruns").resolve().as_uri()
+    # mlflow.set_tracking_uri(db_uri)
+    # print("tracking uri:", mlflow.get_tracking_uri())
+    # print("artifact uri:", artifact_uri)
+
+    dagshub.init(
+    repo_owner='ankur-israni',
+    repo_name='50---mlflow-dagshub-and-bentoml',
+    mlflow=True
+)
 
     # Set experiment metadata
     experiment_name = "wine-quality-experiment"
@@ -48,9 +56,9 @@ if __name__ == "__main__":
 
 
     # Load dataset
-    csv_url = "https://raw.githubusercontent.com/mlflow/mlflow/master/tests/datasets/winequality-red.csv" # Dataset
+    wine_dataset = "https://raw.githubusercontent.com/mlflow/mlflow/master/tests/datasets/winequality-red.csv" # Dataset
     try:
-        data = pd.read_csv(csv_url, sep=";")
+        data = pd.read_csv(wine_dataset, sep=";")
     except Exception as e:
         logger.exception(
             "Unable to download training & test CSV, check your internet connection. Error: %s", e
@@ -88,4 +96,4 @@ if __name__ == "__main__":
         mlflow.log_metric("r2", r2)
         mlflow.log_metric("mae", mae)
 
-        mlflow.sklearn.log_model(sk_model=lr, name="model")
+        mlflow.sklearn.log_model(sk_model=lr, name="mlflow-50-model-remote")
