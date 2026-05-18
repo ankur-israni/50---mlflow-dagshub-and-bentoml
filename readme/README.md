@@ -1,5 +1,6 @@
 ************************************
 # 1) Local Run 
+This will store the MLFlow metada on local machine in mlflow.db (a sqllite database)
 ************************************
 # Create the Vitutal Environment
 conda create -p venv_mlops python==3.12
@@ -14,7 +15,7 @@ pip install -r resources/requirements.txt
 
 # Run the python script
 Terminal ('/Users/ankur/backup/delta/sn/datascience/workspace/11VC_udemy - complete datascience ml_dl_nlp bootcamp/50 - mlflow dagshub and bentoml') > 
-python app-local.py
+python mlflow-local-tracking.py
 
 # Start the MLFlow UI (using 'mlflow.db' file as backend-store)
 Terminal ('/Users/ankur/backup/delta/sn/datascience/workspace/11VC_udemy - complete datascience ml_dl_nlp bootcamp/50 - mlflow dagshub and bentoml') > 
@@ -39,18 +40,11 @@ conda deactivate
 
 ************************************
 # 2) Remote Run (Dagshub) - TODO
+This will store the MLFlow metadata on dagshub.com
 ************************************
 Terminal ('/Users/ankur/backup/delta/sn/datascience/workspace/11VC_udemy - complete datascience ml_dl_nlp bootcamp/50 - mlflow dagshub and bentoml') > 
-python app-remote.py
+python mlflow-remote-tracking.py
 
-
-
-
-## ML FLow experiements
-MLFLOW_TRACKING_URI=https://dagshub.com/krishnaik06/mlflowexperiments.mlflow \
-MLFLOW_TRACKING_USERNAME=krishnaik06 \
-MLFLOW_TRACKING_PASSWORD=7104284f1bb44ece21e0e2adb4e36a250ae3251f \
-python script.py
 
 
 # 3) Git Repository
