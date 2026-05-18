@@ -1,2 +1,6 @@
 mlflow
 dagshub
+python-dotenv 
+scikit-learn 
+pandas 
+numpy

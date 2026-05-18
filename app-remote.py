@@ -46,7 +46,8 @@ if __name__ == "__main__":
     # os.environ["DAGSHUB_USER_TOKEN"] = dagshub_key
     # os.environ["MLFLOW_TRACKING_USERNAME"] = "ankur-israni"
     # os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_key
-    
+    os.environ["DAGSHUB_USER_TOKEN"] = os.getenv("DAGSHUB_KEY")
+
     # Configure MLflow tracking with DagsHub
     print("Initializing DagsHub MLflow tracking...")
     dagshub.init(repo_owner='ankur-israni', repo_name='50---mlflow-dagshub-and-bentoml', mlflow=True)
@@ -109,5 +110,6 @@ if __name__ == "__main__":
         mlflow.log_metric("r2", r2)
         mlflow.log_metric("mae", mae)
 
-        mlflow.sklearn.log_model(sk_model=lr, artifact_path="model")
+        # mlflow.sklearn.log_model(sk_model=lr, artifact_path="model")
+        mlflow.sklearn.log_model(sk_model=lr, name="model")
     
